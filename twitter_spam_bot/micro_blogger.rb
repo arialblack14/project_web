@@ -18,7 +18,11 @@ class MicroBlogger
 
 	def run
 		command = ""
-		puts "This program may spam your twitter account, so be careful when using it."
+		puts "MicroBlogger Initialized."
+		sleep(1)
+		puts
+		puts "***This program may spam your twitter friends/followers, so be careful when using it."
+		puts
 		while command != "q"
 			printf "Enter command: "
 			input = gets.chomp
@@ -29,6 +33,8 @@ class MicroBlogger
 				when "t" then tweet(parts[1..-1].join(" ")) unless parts[1..-1].nil?
 				when "dm" then dm(parts[1], parts[2..-1].join(" "))
 				when "spam" then spam_my_followers parts[1..-1]
+				when "elt" then everyones_last_tweet
+
 				else
 					puts "Sorry, i don't know how to #{command}."				
 			end
@@ -39,7 +45,7 @@ class MicroBlogger
 		puts "Trying to send #{target} this direct message:"
 		puts message
 		screen_names = @client.followers.collect { |follower| @client.user(follower).screen_name }
-		if screen_names.include? target
+		if followers_list.include? target
 			message = "dm @#{target} #{message}"
 			tweet message
 		else
@@ -57,7 +63,17 @@ class MicroBlogger
 
 	def spam_my_followers message
 		followers_list.each do |screen_name|
-			dm(screen_name, message.to_s.join(" "))
+			dm(screen_name, message.join(" "))
+		end
+	end
+
+	def everyones_last_tweet
+		friends = @client.friends
+		friends.each do |friend|
+			if followers_list.include? friend
+				puts "#{@client.user(friend)} said..."
+				puts @client.user(friend).status.first
+			end
 		end
 	end
 end
