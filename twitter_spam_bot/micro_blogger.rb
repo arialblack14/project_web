@@ -68,12 +68,13 @@ class MicroBlogger
 	end
 
 	def everyones_last_tweet
-		friends = @client.friends
+		friends = @client.friends.sort_by { |friend| @client.user(friend).screen_name.downcase }
 		friends.each do |friend|
-			if followers_list.include? friend
-				puts "#{@client.user(friend)} said..."
-				puts @client.user(friend).status.first
-			end
+			timestamp = friend.status.created_at
+
+			puts "#{@client.user(friend).screen_name}  said..."
+			puts "#{@client.user(friend).status.text} on #{timestamp.strftime("%A, %b, %d")}"
+			puts
 		end
 	end
 end
