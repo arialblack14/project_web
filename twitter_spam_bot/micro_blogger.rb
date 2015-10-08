@@ -1,4 +1,5 @@
 require 'jumpstart_auth'
+require 'bitly'
 
 class MicroBlogger
 	attr_reader :client
@@ -34,6 +35,7 @@ class MicroBlogger
 				when "dm" then dm(parts[1], parts[2..-1].join(" "))
 				when "spam" then spam_my_followers parts[1..-1]
 				when "elt" then everyones_last_tweet
+				when "s" then shorten(parts[1..-1].join)
 
 				else
 					puts "Sorry, i don't know how to #{command}."				
@@ -70,12 +72,20 @@ class MicroBlogger
 	def everyones_last_tweet
 		friends = @client.friends.sort_by { |friend| @client.user(friend).screen_name.downcase }
 		friends.each do |friend|
-			timestamp = friend.status.created_at
+			timestamp = @client.user(friend).status.created_at
 
-			puts "#{@client.user(friend).screen_name}  said..."
-			puts "#{@client.user(friend).status.text} on #{timestamp.strftime("%A, %b, %d")}"
+			puts "#{@client.user(friend).screen_name} said this on on #{timestamp.strftime("%A, %b, %d")}"
+			puts @client.user(friend).status.text
 			puts
 		end
+	end
+
+	def shorten(original_url)
+		puts "Shortening this URL: #{original_url}"
+
+		Bitly.use_api_version_3
+		bitly = Bitly.new('hungryacademy', 'R_430e9f62250186d2612cca76eee2dbc6')
+		return bitly.shorten(original_url).short_url
 	end
 end
 
