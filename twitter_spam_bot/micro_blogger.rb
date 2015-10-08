@@ -36,6 +36,7 @@ class MicroBlogger
 				when "spam" then spam_my_followers parts[1..-1]
 				when "elt" then everyones_last_tweet
 				when "s" then shorten(parts[1..-1].join)
+				when "turl" then tweet_with_url(parts[1..-2], parts[-1])				
 
 				else
 					puts "Sorry, i don't know how to #{command}."				
@@ -86,6 +87,10 @@ class MicroBlogger
 		Bitly.use_api_version_3
 		bitly = Bitly.new('hungryacademy', 'R_430e9f62250186d2612cca76eee2dbc6')
 		return bitly.shorten(original_url).short_url
+	end
+
+	def tweet_with_url message, url_to_shorten
+		tweet(message.join(" ") + " " + shorten(url_to_shorten))
 	end
 end
 
